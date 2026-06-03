@@ -9,8 +9,7 @@ app.add_middleware(
     allow_origins=[
         "https://pkbroberg.no",
         "https://www.pkbroberg.no",
-        "http://www.pkbroberg.no",
-        "http://localhost:3000",
+        # Note: localhost:3000 removed - only for local dev, not production
     ],
     allow_credentials=True,
     allow_methods=["*"],
