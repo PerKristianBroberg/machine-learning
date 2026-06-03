@@ -85,6 +85,25 @@ curl -X POST http://localhost:8000/predict/mnist \
 - Start command: `uvicorn api_server.app:app --host 0.0.0.0 --port $PORT`
 - Environment: Python 3.11+
 
-## Development
+## Training & Development
 
-Use Jupyter notebooks in `projects/{project}/notebooks/` for experimentation and EDA.
+### MNIST Retraining
+
+Fine-tune the model with custom handwritten digits:
+
+1. **Set up data:** Download MNIST binary files or use Keras (see `projects/mnist_classifier/data/README.md`)
+2. **Prepare custom samples:** Place handwritten digit images in `projects/mnist_classifier/models/my_open4s/`
+3. **Run retraining:**
+   ```bash
+   cd projects/mnist_classifier
+   python src/retrain_open4s.py
+   ```
+4. **Test:** Update `api_server/routes/mnist.py` to load the new model
+
+### Notebooks
+
+Use Jupyter notebooks in `projects/{project}/notebooks/` for experimentation and EDA:
+
+```bash
+jupyter notebook projects/mnist_classifier/notebooks/MNist.ipynb
+```
