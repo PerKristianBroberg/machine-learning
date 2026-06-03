@@ -8,6 +8,8 @@ __pycache__/
 projects/*/data/train*
 projects/*/data/t10k*
 projects/*/data/DatasetAlphabet/
+projects/*/data/my_open4s/
+projects/*/models/my_open4s/
 *.ubyte
 *.npy
 *.gz
