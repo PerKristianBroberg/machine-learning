@@ -28,6 +28,23 @@ mnist_classifier/
 └── TRAINING.md                  # This file
 ```
 
+## Models
+
+### Current Production Model
+**`models/mnist.pkl`** (4.1M)
+- Fine-tuned MLP with custom handwritten 4s
+- Trained on: 60,000 MNIST samples + 60 custom 4s
+- Architecture: (300, 100) hidden layers
+- Accuracy: ~98% on test set
+- **This is what the API uses** ✅
+
+### Backup Model
+**`models/mnist_v1.pkl`** (8.2M)
+- Original MNIST-only model (no custom 4s)
+- Trained on: 60,000 MNIST samples only
+- Architecture: (300, 100) hidden layers
+- Accuracy: ~98.33% on test set
+
 ## Model Architecture
 
 ```
@@ -83,9 +100,9 @@ model.fit(X_train, y_train)
 joblib.dump(model, "models/mnist.pkl")
 ```
 
-## Fine-tuning with Custom Data
+## Fine-tuning with More Custom Data
 
-You have two custom digits drawn in Pixil Art that you want to use to fine-tune the "4" detection:
+The current production model (`models/mnist.pkl`) was already fine-tuned with 60 custom handwritten 4s from Pixil Art. If you want to retrain with **more or different samples**:
 
 ### 1. Prepare Custom Images
 
@@ -95,15 +112,15 @@ models/
 └── my_open4s/
     ├── pixil-frame-0 (1).png
     ├── pixil-frame-0 (2).png
-    └── ... (60 custom 4s)
+    └── ... (more custom 4s)
 ```
 
 Images should be:
 - Grayscale PNG or similar
-- Any size (will be resized to 28×28)
+- Roughly 28×28 (or will be resized)
 - One digit per image
 
-### 2. Run Fine-tuning
+### 2. Run Retraining
 
 ```bash
 cd projects/mnist_classifier
@@ -115,16 +132,22 @@ This script:
 2. Loads your custom images from `models/my_open4s/`
 3. Merges datasets
 4. Fine-tunes the model (20 epochs)
-5. Saves as `models/mnist_retrained.pkl`
+5. Saves as `models/mnistmlp_open4.pkl`
 
-### 3. Test the Model
+### 3. Deploy the New Model
 
-Update `api_server/routes/mnist.py`:
-```python
-mnist_model = load_model("mnist_classifier", "mnist_retrained")
+Replace the current model:
+```bash
+cp models/mnistmlp_open4.pkl models/mnist.pkl
 ```
 
-Then test the API:
+Or update the API to load the new version:
+```python
+# In api_server/routes/mnist.py
+mnist_model = load_model("mnist_classifier", "mnistmlp_open4")
+```
+
+Test via API:
 ```bash
 curl -X POST http://localhost:8000/predict/mnist \
   -H "Content-Type: application/json" \

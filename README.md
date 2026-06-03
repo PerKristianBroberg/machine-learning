@@ -85,20 +85,28 @@ curl -X POST http://localhost:8000/predict/mnist \
 - Start command: `uvicorn api_server.app:app --host 0.0.0.0 --port $PORT`
 - Environment: Python 3.11+
 
+## Models
+
+**Production:** `projects/mnist_classifier/models/mnist.pkl`
+- Fine-tuned with 60 custom handwritten 4s
+- Ready to use, no setup needed
+- See `MODELS.md` for details on versions
+
 ## Training & Development
 
 ### MNIST Retraining
 
-Fine-tune the model with custom handwritten digits:
+Fine-tune with more custom samples:
 
-1. **Set up data:** Download MNIST binary files or use Keras (see `projects/mnist_classifier/data/README.md`)
-2. **Prepare custom samples:** Place handwritten digit images in `projects/mnist_classifier/models/my_open4s/`
-3. **Run retraining:**
+1. **Add images:** Place in `projects/mnist_classifier/models/my_open4s/`
+2. **Retrain:**
    ```bash
    cd projects/mnist_classifier
    python src/retrain_open4s.py
    ```
-4. **Test:** Update `api_server/routes/mnist.py` to load the new model
+3. **Deploy:** Replace or update model reference in API
+
+See `projects/mnist_classifier/TRAINING.md` and `MODELS.md` for details.
 
 ### Notebooks
 
