@@ -10,5 +10,5 @@ def load_model(project_name: str, model_name: str):
         raise FileNotFoundError(f"Model not found: {path}")
 
     model = joblib.load(path)
-    print(f"✅ Model '{model_name}' from project '{project_name}' loaded successfully.")
+    print(f"[OK] Model '{model_name}' from project '{project_name}' loaded successfully.")
     return model
