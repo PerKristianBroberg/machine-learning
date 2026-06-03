@@ -2,11 +2,11 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List
 from shared_utils.model_loader import load_model
-from projects.mnist_classifier.src.predict import predict_mnist
+from projects.mnist_classifier.src.inference import predict_mnist
 
 router = APIRouter()
 
-mnist_model = load_model("mnist_classifier", "mnist")
+mnist_model = load_model("mnist_classifier", "mnist_production")
 
 
 class CanvasInput(BaseModel):

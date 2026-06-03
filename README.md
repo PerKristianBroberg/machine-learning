@@ -9,8 +9,9 @@ A scalable, modular machine learning backend serving multiple models for the por
 ├── projects/            # Independent ML projects
 │   └── mnist_classifier/
 │       ├── notebooks/   # Jupyter notebooks for EDA & experimentation
-│       ├── src/         # Modular Python code (preprocess, predict)
-│       └── models/      # Serialized model binaries (.pkl)
+│       ├── src/         # Modular Python code (preprocessing, inference, training)
+│       ├── models/      # Serialized model binaries (.pkl)
+│       └── data/        # Training datasets and custom samples
 ├── shared_utils/        # Common utilities (model loader, etc)
 └── requirements.txt     # Python dependencies
 ```
@@ -87,7 +88,7 @@ curl -X POST http://localhost:8000/predict/mnist \
 
 ## Models
 
-**Production:** `projects/mnist_classifier/models/mnist.pkl`
+**Production:** `projects/mnist_classifier/models/mnist_production.pkl`
 - Fine-tuned with 60 custom handwritten 4s
 - Ready to use, no setup needed
 - See `MODELS.md` for details on versions
@@ -98,11 +99,11 @@ curl -X POST http://localhost:8000/predict/mnist \
 
 Fine-tune with more custom samples:
 
-1. **Add images:** Place in `projects/mnist_classifier/models/my_open4s/`
+1. **Add images:** Place in `projects/mnist_classifier/data/custom_samples/`
 2. **Retrain:**
    ```bash
    cd projects/mnist_classifier
-   python src/retrain_open4s.py
+   python src/fine_tune_model.py
    ```
 3. **Deploy:** Replace or update model reference in API
 
@@ -113,5 +114,5 @@ See `projects/mnist_classifier/TRAINING.md` and `MODELS.md` for details.
 Use Jupyter notebooks in `projects/{project}/notebooks/` for experimentation and EDA:
 
 ```bash
-jupyter notebook projects/mnist_classifier/notebooks/MNist.ipynb
+jupyter notebook projects/mnist_classifier/notebooks/mnist_exploration.ipynb
 ```

@@ -9,16 +9,16 @@ This folder contains training and prediction code for the MNIST digit classifier
 ```
 mnist_classifier/
 ├── src/
-│   ├── preprocess.py            # Preprocessing (normalization, centering)
-│   ├── predict.py               # Inference code
-│   ├── retrain_open4s.py        # Fine-tuning script with custom data
-│   └── number_four.py           # Data preparation script for custom samples
+│   ├── preprocessing.py         # Preprocessing (normalization, centering)
+│   ├── inference.py             # Inference code
+│   ├── fine_tune_model.py       # Fine-tuning script with custom data
+│   └── prepare_custom_samples.py # Data preparation script for custom samples
 ├── models/
-│   ├── mnist.pkl                # Default model (loaded by API)
-│   ├── mnist_v1.pkl             # Previous version (backup)
-│   └── my_open4s/               # Custom handwritten sample images
+│   ├── mnist_production.pkl     # Production model (loaded by API)
+│   ├── mnist_baseline.pkl       # Baseline model (backup)
+│   └── custom_samples/          # Custom handwritten sample images
 ├── notebooks/
-│   └── MNist.ipynb              # Jupyter notebook with EDA & experiments
+│   └── mnist_exploration.ipynb  # Jupyter notebook with EDA & experiments
 ├── data/
 │   ├── README.md                # Instructions for downloading MNIST data
 │   ├── train-images-idx3-ubyte/ # MNIST training images (binary)
@@ -31,15 +31,15 @@ mnist_classifier/
 ## Models
 
 ### Current Production Model
-**`models/mnist.pkl`** (4.1M)
+**`models/mnist_production.pkl`** (4.1M)
 - Fine-tuned MLP with custom handwritten 4s
 - Trained on: 60,000 MNIST samples + 60 custom 4s
 - Architecture: (300, 100) hidden layers
 - Accuracy: ~98% on test set
 - **This is what the API uses** ✅
 
-### Backup Model
-**`models/mnist_v1.pkl`** (8.2M)
+### Baseline Model
+**`models/mnist_baseline.pkl`** (8.2M)
 - Original MNIST-only model (no custom 4s)
 - Trained on: 60,000 MNIST samples only
 - Architecture: (300, 100) hidden layers
@@ -69,7 +69,7 @@ cd data
 
 ### 2. Train Model
 
-Run the Jupyter notebook `notebooks/MNist.ipynb` to:
+Run the Jupyter notebook `notebooks/mnist_exploration.ipynb` to:
 - Load MNIST data
 - Preprocess images (normalize, center)
 - Train the MLP classifier
@@ -102,14 +102,14 @@ joblib.dump(model, "models/mnist.pkl")
 
 ## Fine-tuning with More Custom Data
 
-The current production model (`models/mnist.pkl`) was already fine-tuned with 60 custom handwritten 4s from Pixil Art. If you want to retrain with **more or different samples**:
+The current production model (`models/mnist_production.pkl`) was already fine-tuned with 60 custom handwritten 4s from Pixil Art. If you want to retrain with **more or different samples**:
 
 ### 1. Prepare Custom Images
 
-Place your handwritten digit images in `models/my_open4s/`:
+Place your handwritten digit images in `data/custom_samples/`:
 ```
-models/
-└── my_open4s/
+data/
+└── custom_samples/
     ├── pixil-frame-0 (1).png
     ├── pixil-frame-0 (2).png
     └── ... (more custom 4s)
@@ -124,12 +124,12 @@ Images should be:
 
 ```bash
 cd projects/mnist_classifier
-python src/retrain_open4s.py
+python src/fine_tune_model.py
 ```
 
 This script:
 1. Loads original MNIST training data from `data/`
-2. Loads your custom images from `models/my_open4s/`
+2. Loads your custom images from `data/custom_samples/`
 3. Merges datasets
 4. Fine-tunes the model (20 epochs)
 5. Saves as `models/mnistmlp_open4.pkl`
@@ -138,7 +138,7 @@ This script:
 
 Replace the current model:
 ```bash
-cp models/mnistmlp_open4.pkl models/mnist.pkl
+cp models/mnistmlp_open4.pkl models/mnist_production.pkl
 ```
 
 Or update the API to load the new version:
@@ -158,7 +158,7 @@ curl -X POST http://localhost:8000/predict/mnist \
 
 ### Using the Notebook
 
-The `MNist.ipynb` notebook includes:
+The `mnist_exploration.ipynb` notebook includes:
 - Data loading & visualization
 - Preprocessing pipeline testing
 - Model evaluation on test set
@@ -187,15 +187,15 @@ print(f"Accuracy: {acc:.4f}")
 - Ensure `data/` folder has the MNIST binary files (see `data/README.md`)
 - Or update `retrain_open4s.py` to use Keras for MNIST
 
-### Custom images not loading in `retrain_open4s.py`
+### Custom images not loading in `fine_tune_model.py`
 - Check image names match the regex: `pixil-frame-0 (\d+).png`
-- Ensure images are in `models/my_open4s/` folder
-- Try running `src/number_four.py` first to prep the data
+- Ensure images are in `data/custom_samples/` folder
+- Try running `src/prepare_custom_samples.py` first to prep the data
 
 ### Poor accuracy on custom digits
 - Collect more custom samples (60+ images per digit)
-- Ensure preprocessing in `src/preprocess.py` matches training
-- Use more training epochs in `retrain_open4s.py`
+- Ensure preprocessing in `src/preprocessing.py` matches training
+- Use more training epochs in `fine_tune_model.py`
 
 ## Next Steps
 

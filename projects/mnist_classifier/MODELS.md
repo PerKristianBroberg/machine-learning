@@ -1,6 +1,6 @@
 # MNIST Model Versions
 
-## Production Model: `models/mnist.pkl`
+## Production Model: `models/mnist_production.pkl`
 
 **Status:** ✅ In use by the API
 
@@ -15,14 +15,14 @@
 
 **How it was created:**
 1. Started with standard MNIST trained model
-2. Ran `src/retrain_open4s.py` with your 60 custom 4s
+2. Ran `src/fine_tune_model.py` with your 60 custom 4s
 3. Model learned to recognize your specific style of writing "4"
 
 **File size:** 4.1M (smaller than original because fine-tuning converges faster)
 
 ---
 
-## Backup Model: `models/mnist_v1.pkl`
+## Baseline Model: `models/mnist_baseline.pkl`
 
 **Status:** ⚠️ Older version, not currently used
 
@@ -45,16 +45,16 @@ If you want to retrain with **more custom samples**:
 
 ```bash
 # 1. Add your custom digit images to:
-# models/my_open4s/pixil-frame-0 (*.png)
+# data/custom_samples/pixil-frame-0 (*.png)
 
 # 2. Run retraining:
-python src/retrain_open4s.py
+python src/fine_tune_model.py
 
 # 3. This creates: models/mnistmlp_open4.pkl
 
 # 4. Decide:
 #    Option A: Overwrite current model
-cp models/mnistmlp_open4.pkl models/mnist.pkl
+cp models/mnistmlp_open4.pkl models/mnist_production.pkl
 
 #    Option B: Keep both versions
 #    (update api_server/routes/mnist.py to load which one)
@@ -84,19 +84,19 @@ MNIST Original Dataset (60,000)
 
 ## Switching Models
 
-To use the older model without custom 4s:
+To use the baseline model without custom 4s:
 
 **Option 1: Swap files**
 ```bash
-mv models/mnist.pkl models/mnist.pkl.backup
-cp models/mnist_v1.pkl models/mnist.pkl
+mv models/mnist_production.pkl models/mnist_production.pkl.backup
+cp models/mnist_baseline.pkl models/mnist_production.pkl
 # Restart API
 ```
 
 **Option 2: Update API route**
 ```python
 # In api_server/routes/mnist.py
-mnist_model = load_model("mnist_classifier", "mnist_v1")
+mnist_model = load_model("mnist_classifier", "mnist_baseline")
 ```
 
 ---

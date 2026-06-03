@@ -1,4 +1,4 @@
-from .preprocess import preprocess_mnist
+from .preprocessing import preprocess_mnist
 
 
 def predict_mnist(model, pixels: list) -> dict:

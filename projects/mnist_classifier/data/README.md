@@ -22,7 +22,7 @@ mkdir -p train-images-idx3-ubyte train-labels-idx1-ubyte t10k-images-idx3-ubyte 
 
 ### Option 2: Use Keras/TensorFlow
 
-Alternative: modify `retrain_open4s.py` to load MNIST from Keras:
+Alternative: modify `fine_tune_model.py` to load MNIST from Keras:
 ```python
 from tensorflow.keras.datasets import mnist
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
@@ -32,14 +32,14 @@ y_train = train_labels
 
 ## Retraining with Custom Data
 
-Place custom handwritten images in `my_open4s/` folder, then:
+Place custom handwritten images in `custom_samples/` folder, then:
 
 ```bash
-python src/retrain_open4s.py
+python src/fine_tune_model.py
 ```
 
 This will:
 1. Load original MNIST training data
 2. Add your custom samples
 3. Fine-tune the model
-4. Save as `../models/mnist_retrained.pkl`
+4. Save as `../models/mnistmlp_open4.pkl`

@@ -31,12 +31,12 @@ y_train = train_labels
 print("✅ MNIST loaded:", X_train.shape)
 
 # ------------------------------------------------------------------
-# 3️⃣  Load your 60 open-4 PNGs
+# 3️⃣  Load custom handwritten sample images
 # ------------------------------------------------------------------
-files = sorted(glob.glob("my_open4s/pixil-frame-0 (*.png)"))
+files = sorted(glob.glob("custom_samples/pixil-frame-0 (*.png)"))
 if not files:
     import os
-    files = [f"my_open4s/{f}" for f in os.listdir("my_open4s")
+    files = [f"custom_samples/{f}" for f in os.listdir("custom_samples")
              if re.match(r"pixil-frame-0 \(\d+\)\.png", f)]
 print(f"✅ Found {len(files)} custom 4 images")
 

@@ -3,18 +3,18 @@ import numpy as np
 import glob
 import re
 
-# Path to your folder
-files = sorted(glob.glob("my_open4s/pixil-frame-0 (*.png)"))
+# Path to custom samples folder
+files = sorted(glob.glob("custom_samples/pixil-frame-0 (*.png)"))
 
 if not files:
     # Alternative matching if parentheses cause glob issues
-    files = sorted(glob.glob("my_open4s/pixil-frame-0*(*).png"))
+    files = sorted(glob.glob("custom_samples/pixil-frame-0*(*).png"))
 
 # Fallback pattern if needed (manual regex)
 if not files:
     import os
-    files = [f for f in os.listdir("my_open4s") if re.match(r"pixil-frame-0 \(\d+\)\.png", f)]
-    files = [f"my_open4s/{f}" for f in files]
+    files = [f for f in os.listdir("custom_samples") if re.match(r"pixil-frame-0 \(\d+\)\.png", f)]
+    files = [f"custom_samples/{f}" for f in files]
 
 print(f"Found {len(files)} images")
 
