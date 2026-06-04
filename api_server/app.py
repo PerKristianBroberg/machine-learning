@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api_server.routes import mnist
+from api_server.routes import mnist, tic_tac_toe
 
 app = FastAPI(title="ML Backend")
 
@@ -17,6 +17,7 @@ app.add_middleware(
 )
 
 app.include_router(mnist.router)
+app.include_router(tic_tac_toe.router)
 
 
 @app.get("/")
