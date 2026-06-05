@@ -37,6 +37,28 @@ Server starts at `http://localhost:8000`
 
 - `GET /` — health check
 - `POST /predict/mnist` — predict digit from pixel array
+- `POST /predict/tic-tac-toe` — optimal move via alpha-beta minimax
+- `POST /predict/kmeans` — cluster 1-D/N-D data, returns a per-epoch trace
+- `POST /generate/kmeans` — generate random data points to cluster
+
+### Test k-means endpoint
+
+```bash
+# Reproduces the classic exercise: cluster 2,5,10,12,3,20,31,11,24 with seeds 2 & 5
+curl -X POST http://localhost:8000/predict/kmeans \
+  -H "Content-Type: application/json" \
+  -d '{"data": [2,5,10,12,3,20,31,11,24], "k": 2, "init_centroids": [2,5]}'
+
+# Or generate random data first, then cluster it
+curl -X POST http://localhost:8000/generate/kmeans \
+  -H "Content-Type: application/json" \
+  -d '{"n_points": 12, "dims": 1, "low": 0, "high": 50}'
+```
+
+The k-means response includes `epochs` — each with every point's distance to each
+centroid and its cluster assignment — plus `initial_centroids`, `converged`,
+`epochs_needed` and `final_clusters`, giving a frontend everything it needs to
+animate the algorithm step by step.
 
 ### Test MNIST endpoint
 
