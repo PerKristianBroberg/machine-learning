@@ -1,8 +1,12 @@
+import logging
+
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Union
 
 from projects.kmeans.src.engine import generate_data, kmeans
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -10,21 +14,46 @@ router = APIRouter()
 Scalar = Union[int, float]
 PointInput = Union[Scalar, List[Scalar]]
 
+# Caps that mirror the /generate/kmeans limits. Without them, `data` and
+# `init_centroids` are unbounded: a large point set crossed with up to
+# max_epochs iterations and a full per-epoch trace is a memory/CPU/response
+# amplification vector.
+MAX_POINTS = 1000
+MAX_DIMS = 10
+
+
+def _check_point_dims(points: Optional[List[PointInput]]) -> Optional[List[PointInput]]:
+    """Reject points whose dimensionality exceeds MAX_DIMS."""
+    if points is None:
+        return points
+    for p in points:
+        if isinstance(p, list) and len(p) > MAX_DIMS:
+            raise ValueError(f"each point may have at most {MAX_DIMS} dimensions")
+    return points
+
 
 class ClusterInput(BaseModel):
     data: Optional[List[PointInput]] = Field(
         None,
+        max_length=MAX_POINTS,
         description="Points to cluster: bare numbers for 1-D, or lists for N-D. "
         "If omitted, random data is generated.",
     )
     k: int = Field(2, ge=1, le=10, description="Number of clusters.")
     init_centroids: Optional[List[PointInput]] = Field(
-        None, description="Optional explicit starting centroids (one per cluster)."
+        None,
+        max_length=MAX_DIMS,
+        description="Optional explicit starting centroids (one per cluster).",
     )
     max_epochs: int = Field(100, ge=1, le=1000, description="Hard cap on epochs.")
     seed: Optional[int] = Field(
         None, description="RNG seed for random centroids / data generation."
     )
+
+    @field_validator("data", "init_centroids")
+    @classmethod
+    def limit_dims(cls, value: Optional[List[PointInput]]) -> Optional[List[PointInput]]:
+        return _check_point_dims(value)
 
 
 class GenerateInput(BaseModel):
@@ -53,8 +82,9 @@ def kmeans_cluster(input_data: ClusterInput):
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Clustering failed: {e}")
+    except Exception:
+        logger.exception("Clustering failed")
+        raise HTTPException(status_code=500, detail="Clustering failed")
 
 
 @router.post("/generate/kmeans")
@@ -73,5 +103,6 @@ def kmeans_generate(input_data: GenerateInput):
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Data generation failed: {e}")
+    except Exception:
+        logger.exception("Data generation failed")
+        raise HTTPException(status_code=500, detail="Data generation failed")

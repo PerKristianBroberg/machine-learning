@@ -11,9 +11,11 @@ app.add_middleware(
         "https://www.pkbroberg.no",
         # Note: localhost:3000 removed - only for local dev, not production
     ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    # This API takes no cookies or auth headers, so credentials stay off and
+    # methods/headers are scoped down instead of left as wildcards.
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
 
 app.include_router(mnist.router)
